@@ -1,0 +1,68 @@
+import random
+import time
+
+# Classe Fila simplificada
+class FilaBanco:
+    def __init__(self):
+        self.clientes = []  # Lista para armazenar os clientes
+    
+    def chegada(self, cliente):
+        """Adiciona um cliente no final da fila"""
+        self.clientes.append(cliente)
+        print(f"{cliente} chegou e entrou na fila")
+    
+    def atender(self):
+        """Remove e retorna o primeiro cliente da fila"""
+        if not self.esta_vazia():
+            cliente = self.clientes.pop(0)  # Remove o primeiro elemento
+            return cliente
+        else:
+            return None
+    
+    def esta_vazia(self):
+        """Verifica se a fila está vazia"""
+        return len(self.clientes) == 0
+    
+    def tamanho(self):
+        """Retorna o tamanho atual da fila"""
+        return len(self.clientes)
+
+# Função principal
+def main():
+    print("=== Simulação de Fila de Banco ===")
+    print("(Versão simplificada para iniciantes)\n")
+    
+    # Cria a fila do banco
+    fila = FilaBanco()
+    
+    # Número de clientes que virão ao banco
+    num_clientes = 5
+    
+    # Simula a chegada dos clientes
+    print("--- Chegada dos clientes ---")
+    for i in range(1, num_clientes + 1):
+        fila.chegada(f"Cliente {i}")
+        time.sleep(0.5)  # Pequena pausa entre chegadas
+    
+    print("\n--- Início do atendimento ---")
+    
+    # Simula o atendimento
+    while not fila.esta_vazia():
+        # Pega o próximo cliente
+        cliente = fila.atender()
+        
+        if cliente:
+            # Tempo de atendimento aleatório (1-3 segundos para a simulação)
+            tempo_atendimento = random.randint(1, 3)
+            print(f"\nAtendendo {cliente} (levará {tempo_atendimento} segundos)")
+            
+            # Simula o tempo de atendimento
+            time.sleep(tempo_atendimento)
+            
+            print(f"{cliente} atendido! Clientes restantes: {fila.tamanho()}")
+    
+    print("\nTodos os clientes foram atendidos!")
+
+# Executa o programa
+if __name__ == "__main__":
+    main()
