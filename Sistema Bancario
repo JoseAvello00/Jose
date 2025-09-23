@@ -1,0 +1,294 @@
+class Bank:
+    def __init__(self, name: str, agency: str, number: str, balance: float = 0.0, limit: float = 1000.0, password: str = "1234", pix_key: str = None):
+        self.__name = name
+        self.__agency = agency
+        self.__number = number
+        self.__balance = balance
+        self.__limit = limit
+        self.__password = password
+        self.__pix_key = pix_key
+        self.__statement = []
+        self.__invested_balance = 0.0
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def number(self):
+        return self.__number
+
+    @property
+    def balance(self):
+        return self.__balance
+
+    @property
+    def pix_key(self):
+        return self.__pix_key
+
+    @property
+    def invested_balance(self):
+        return self.__invested_balance
+
+    
+    def change_limit(self, new_limit: float, password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+        if new_limit >= 0:
+            self.__limit = new_limit
+            print(f"Limit changed to $ {new_limit:.2f} successfully.")
+        else:
+            print("Error: The limit must be a positive value.")
+
+    def pay_pix(self, amount: float, destination_pix_key: str, password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+
+        if amount <= 0:
+            print("Error: The PIX amount must be positive.")
+            return
+
+        if amount > self.__balance + self.__limit:
+            print("Error: Insufficient balance and limit.")
+            return
+
+        self.__balance -= amount
+        self.__statement.append(f"PIX payment sent: - $ {amount:.2f} to key '{destination_pix_key}'")
+        print(f"\nPIX payment of $ {amount:.2f} to '{destination_pix_key}' made successfully.")
+
+    def change_pix_key(self, new_key: str):
+        self.__pix_key = new_key
+        print(f"PIX key changed successfully to: {self.__pix_key}")
+
+    def check_statement(self):
+        print("\n--- STATEMENT ---")
+        if not self.__statement:
+            print("No transactions recorded.")
+        else:
+            for item in self.__statement:
+                print(item)
+        print("---------------")
+        print(f"Account balance: $ {self.__balance:.2f}")
+        print(f"Invested balance: $ {self.__invested_balance:.2f}")
+        print(f"Available limit: $ {self.__limit:.2f}")
+        print("---------------")
+
+    def deposit(self, amount: float):
+        if amount > 0:
+            self.__balance += amount
+            self.__statement.append(f"Deposit: + $ {amount:.2f}")
+            print(f"Deposit of $ {amount:.2f} made successfully.")
+        else:
+            print("Error: The deposit amount must be positive.")
+
+    def withdraw(self, amount: float, password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+
+        if amount <= 0:
+            print("Error: The withdrawal amount must be positive.")
+            return
+
+        if amount > self.__balance + self.__limit:
+            print("Error: Insufficient balance and limit for this withdrawal.")
+        else:
+            self.__balance -= amount
+            self.__statement.append(f"Withdrawal: - $ {amount:.2f}")
+            print(f"Withdrawal of $ {amount:.2f} made successfully.")
+
+    def transfer(self, amount: float, destination_account: 'Bank', password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+
+        if amount <= 0:
+            print("Error: The transfer amount must be positive.")
+            return
+
+        if amount > self.__balance + self.__limit:
+            print("Error: Insufficient balance and limit.")
+        else:
+            self.__balance -= amount
+            destination_account.deposit(amount)
+            self.__statement.append(f"Transfer sent: - $ {amount:.2f} to {destination_account.name}")
+            
+            print(f"Transfer of $ {amount:.2f} to {destination_account.name} made successfully.")
+
+    def pay_bill(self, amount: float, password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+
+        if amount <= 0:
+            print("Error: The bill amount must be positive.")
+            return
+
+        if amount > self.__balance + self.__limit:
+            print("Error: Insufficient balance.")
+        else:
+            self.__balance -= amount
+            self.__statement.append(f"Bill payment: - $ {amount:.2f}")
+            print(f"Bill of $ {amount:.2f} paid successfully.")
+
+    def change_password(self, current_password: str, new_password: str):
+        if current_password == self.__password:
+            self.__password = new_password
+            print("Password changed successfully.")
+        else:
+            print("Error: Incorrect current password.")
+
+   
+    def invest(self, amount: float, password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+
+        if amount <= 0:
+            print("Error: The investment amount must be positive.")
+            return
+
+        if amount > self.__balance:
+            print("Error: Insufficient balance to make the investment.")
+            return
+
+        self.__balance -= amount
+        self.__invested_balance += amount
+        self.__statement.append(f"Investment: - $ {amount:.2f}")
+        print(f"Investment of $ {amount:.2f} made successfully.")
+
+    def redeem_investment(self, amount: float, password: str):
+        if password != self.__password:
+            print("Error: Incorrect password.")
+            return
+
+        if amount <= 0:
+            print("Error: The redemption amount must be positive.")
+            return
+
+        if amount > self.__invested_balance:
+            print("Error: Insufficient investment balance for redemption.")
+            return
+
+        self.__invested_balance -= amount
+        self.__balance += amount
+        self.__statement.append(f"Investment Redemption: + $ {amount:.2f}")
+        print(f"Redemption of $ {amount:.2f} made successfully. The amount has been added to your balance.")
+
+
+print("--- Welcome to the Banking System ---")
+
+print("\n--- Account 1 Creation ---")
+name1 = input("Enter the name of the account holder 1: ")
+agency1 = input("Enter the agency number: ")
+number1 = input("Enter the account number: ")
+password_1 = input("Enter the account password: ")
+account1 = Bank(name1, agency1, number1, password=password_1, balance=1000)
+print(f"Account created successfully for {account1.name}!\n")
+
+print("\n--- Account 2 Creation ---")
+name2 = input("Enter the name of the account holder 2: ")
+agency2 = input("Enter the agency number: ")
+number2 = input("Enter the account number: ")
+password_2 = input("Enter the account password: ")
+account2 = Bank(name2, agency2, number2, password=password_2, balance=500)
+print(f"Account created successfully for {account2.name}!\n")
+
+
+active_account = account1
+logged_in = True
+
+while logged_in:
+    print(f"\n--- MENU: {active_account.name} ---")
+    print("1.  Check Statement")
+    print("2.  Deposit")
+    print("3.  Withdraw")
+    print("4.  Transfer")
+    print("5.  Pay Bill")
+    print("6.  Make a PIX Payment")
+    print("7.  Change PIX Key")
+    print("8.  Invest Money")
+    print("9.  Redeem Investment")
+    print("10. Change Limit")
+    print("11. Change Password")
+    print("0. Exit")
+    choice = input("Choose an option: ")
+
+    if choice == '1':
+        active_account.check_statement()
+
+    elif choice == '2':
+        amount = float(input("Enter the amount to deposit: $ "))
+        active_account.deposit(amount)
+
+    elif choice == '3':
+        amount = float(input("Enter the amount to withdraw: $ "))
+        password = input("Enter your password: ")
+        active_account.withdraw(amount, password)
+
+    elif choice == '4':
+        print("\n--- Transfer ---")
+        amount = float(input("Enter the amount to transfer: $ "))
+        password = input("Enter your password to confirm: ")
+        
+        active_account.transfer(amount, account2, password)
+
+    elif choice == '5':
+        amount = float(input("Enter the bill amount to pay: $ "))
+        password = input("Enter your password: ")
+        active_account.pay_bill(amount, password)
+
+    elif choice == '6':
+        print("\n--- PIX Payment ---")
+        destination_key = input("Enter the recipient's PIX key: ")
+        amount = float(input("Enter the amount to pay: $ "))
+        password = input("Enter your password to confirm: ")
+        active_account.pay_pix(amount, destination_key, password)
+
+    elif choice == '7':
+        print(f"Your current PIX key is: {active_account.pix_key or 'None'}")
+        new_key = input("Enter the new PIX key you want to register: ")
+        if new_key:
+            active_account.change_pix_key(new_key)
+
+    elif choice == '8':
+        print("\n--- Invest ---")
+        print(f"Available balance for investment: $ {active_account.balance:.2f}")
+        amount = float(input("Enter the amount you want to invest: $ "))
+        password = input("Enter your password to confirm: ")
+        active_account.invest(amount, password)
+
+    elif choice == '9':
+        print("\n--- Redeem Investment ---")
+        print(f"Invested balance available for redemption: $ {active_account.invested_balance:.2f}")
+        amount = float(input("Enter the amount you want to redeem: $ "))
+        password = input("Enter your password to confirm: ")
+        active_account.redeem_investment(amount, password)
+
+    elif choice == '10':
+        new_limit = float(input("Enter the new limit amount: $ "))
+        password = input("Enter your password to confirm the change: ")
+        active_account.change_limit(new_limit, password)
+
+    elif choice == '11':
+        current_password = input("Enter your current password: ")
+        new_password = input("Enter the new password: ")
+        active_account.change_password(current_password, new_password)
+
+    elif choice == '0':
+        print("Exiting the system. Thank you for using our bank!")
+        logged_in = False
+
+    else:
+        print("Invalid option. Please try again.")
+
+
+
+
+
+
+
+
+     
